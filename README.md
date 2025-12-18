@@ -2,55 +2,46 @@
 
 ## What it is
 
-A full simulation of a company’s supply chain:
-Demand → Procurement → Inventory → Warehouse → Delivery
+A data-driven simulation of a company’s supply chain, from demand and procurement to inventory and delivery. This project uses realistic, modular components to simulate daily operations and log key performance indicators (KPIs).
 
-## Core features
+## Core Features
 
-- Demand forecasting (monthly/weekly)
-- Supplier lead time variability
-- Inventory policy (EOQ / Reorder Point)
-- Stockout & overstock simulation
-- Delivery delay tracking
+- **Data-Driven Simulation**: Uses sample CSV files for demand, suppliers, and inventory.
+- **Modular Engine**: A central `run_simulation.py` script ties all supply chain components together.
+- **Daily KPI Logging**: Logs key metrics like stock levels, stockouts, costs, and lead times to a CSV file for analysis.
+- **Dashboard-Ready**: The output is designed to be easily imported into tools like Power BI or Excel to build interactive dashboards.
 
-## KPI dashboard:
+## Tech Stack
 
-- Fill rate
-- Service level
-- Inventory turnover
-- Cost impact
-
-## Tech stack
-
-- Python (pandas, numpy, matplotlib)
-- Excel / Power BI (dashboard)
-- Optional: Flask web UI
+- Python (pandas, numpy)
+- Power BI / Excel (for visualization)
 
 ## How to Use
 
-### Running the Simulation (Web UI)
+This project includes an interactive web UI to run simulations and visualize the results.
+
+### 1. Run the Web Application
 
 1.  Install the required dependencies:
     ```bash
     pip install -r requirements.txt
     ```
-2.  Run the Flask application:
+2.  Run the Flask application from your terminal:
     ```bash
     python app/main.py
     ```
-3.  Open your web browser and navigate to `http://127.0.0.1:5000`.
-4.  Enter your desired simulation parameters and click "Run Simulation".
+3.  Open your web browser and navigate to `http://127.0.0.1:8080`.
 
-### Using with Excel / Power BI
+### 2. Run a Simulation
 
-After running a simulation in the web UI, you can download the full simulation log as a CSV file by clicking the **Download Full Log (CSV)** button.
+-   From the dropdown menu, select a simulation scenario (e.g., Base Case, High Demand).
+-   Click the **Run Simulation** button.
+-   The results, including high-level KPIs and an inventory chart, will be displayed on the page.
 
-This CSV file can be easily opened in **Microsoft Excel** for data analysis, pivot tables, and custom charts.
+### 3. Customize Scenarios
 
-To use the data in **Power BI**:
+You can add or modify simulation scenarios by editing the files in the `/scenarios` directory. Each subdirectory represents a different scenario and must contain:
 
-1.  Open Power BI Desktop.
-2.  On the Home ribbon, click **Get Data** and select **Text/CSV**.
-3.  Navigate to the downloaded `simulation_log.csv` file and open it.
-4.  Click **Load** to import the data into your Power BI model.
-5.  You can now use the Power BI report builder to create interactive dashboards and visualizations based on the simulation data.
+-   `demand.csv`
+-   `suppliers.csv`
+-   `inventory.csv`

@@ -12,80 +12,64 @@
     <div class="container">
         <div class="text-center mt-5">
             <h1>Supply Chain Digital Twin</h1>
-            <p class="lead">A full simulation of a company’s supply chain.</p>
+            <p class="lead">An interactive simulation of a company’s supply chain.</p>
         </div>
 
         <div class="card">
-            <div class="card-header">Simulation Parameters</div>
+            <div class="card-header">Simulation Control</div>
             <div class="card-body">
                 <form action="/run" method="post">
                     <div class="row">
-                        <div class="col-md-3">
-                            <label for="initial_inventory" class="form-label">Initial Inventory</label>
-                            <input type="number" class="form-control" id="initial_inventory" name="initial_inventory" value="200">
+                        <div class="col-md-9">
+                            <label for="scenario" class="form-label">Select Scenario</label>
+                            <select class="form-select" id="scenario" name="scenario">
+                                {% for scenario in scenarios %}
+                                    <option value="{{ scenario }}" {% if scenario == selected_scenario %}selected{% endif %}>{{ scenario.replace('_', ' ').title() }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="simulation_days" class="form-label">Simulation Days</label>
-                            <input type="number" class="form-control" id="simulation_days" name="simulation_days" value="365">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="reorder_point" class="form-label">Reorder Point</label>
-                            <input type="number" class="form-control" id="reorder_point" name="reorder_point" value="100">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="order_quantity" class="form-label">Order Quantity</label>
-                            <input type="number" class="form-control" id="order_quantity" name="order_quantity" value="200">
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Run Simulation</button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">Run Simulation</button>
                 </form>
             </div>
         </div>
 
-        {% if results %}
+        {% if kpis %}
         <div class="mt-5">
-            <h2>Simulation Results</h2>
+            <h2>Simulation Results for "{{ selected_scenario.replace('_', ' ').title() }}"</h2>
             <div class="row mt-4">
                 <div class="col-md-4">
                     <div class="card kpi-card">
                         <div class="card-body">
-                            <div class="kpi-value">{{ kpis.fill_rate }}</div>
-                            <div class="kpi-label">Fill Rate</div>
+                            <div class="kpi-value">{{ kpis.total_cost }}</div>
+                            <div class="kpi-label">Total Cost</div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card kpi-card">
                         <div class="card-body">
-                            <div class="kpi-value">{{ kpis.service_level }}</div>
-                            <div class="kpi-label">Service Level</div>
+                            <div class="kpi-value">{{ kpis.total_stockouts }}</div>
+                            <div class="kpi-label">Total Stockouts</div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card kpi-card">
                         <div class="card-body">
-                            <div class="kpi-value">{{ kpis.inventory_turnover }}</div>
-                            <div class="kpi-label">Inventory Turnover</div>
+                            <div class="kpi-value">{{ kpis.avg_inventory }}</div>
+                            <div class="kpi-label">Avg. Inventory</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card mt-4">
-                <div class="card-header">Inventory Level Over Time</div>
+                <div class="card-header">Inventory Level Over Time (Product P1)</div>
                 <div class="card-body">
                     <canvas id="inventoryChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card mt-4">
-                <div class="card-header">Simulation Log (Last 10 Days)</div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        {{ results|safe }}
-                    </div>
-                    <a href="/download" class="btn btn-secondary mt-3">Download Full Log (CSV)</a>
                 </div>
             </div>
         </div>

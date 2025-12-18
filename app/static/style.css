@@ -26,21 +26,3 @@ body {
     font-size: 1rem;
     color: #6c757d;
 }
-
-.table thead th {
-    background-color: #0d6efd;
-    color: white;
-}
-
-.table-hover tbody tr:hover {
-    color: #212529;
-    background-color: rgba(0,0,0,.075);
-}
-
-.table {
-    text-align: center;
-}
-
-.table td, .table th {
-    vertical-align: middle;
-}

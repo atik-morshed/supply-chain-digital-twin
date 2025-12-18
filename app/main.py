@@ -1,75 +1,52 @@
 import sys
 import os
-import pandas as pd
-import numpy as np
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 
 # Add the src directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.simulation.main import SupplyChainSimulation
-from src.dashboard.kpi import calculate_fill_rate, calculate_service_level, calculate_inventory_turnover
+from src.simulation_engine import run_simulation
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    scenarios = [d for d in os.listdir('scenarios') if os.path.isdir(os.path.join('scenarios', d))]
+    return render_template('index.html', scenarios=scenarios)
 
 @app.route('/run', methods=['POST'])
 def run_simulation_route():
-    # Get parameters from form
-    initial_inventory = int(request.form.get('initial_inventory', 200))
-    days = int(request.form.get('simulation_days', 365))
-    reorder_point = int(request.form.get('reorder_point', 100))
-    order_quantity = int(request.form.get('order_quantity', 200))
-
-    # Generate dummy demand data
-    np.random.seed(42)
-    demand = {day: np.random.randint(10, 30) for day in range(1, days + 1)}
-
-    # Define inventory policy
-    policy = {
-        'reorder_point': reorder_point,
-        'order_quantity': order_quantity,
-        'mean_lead_time': 7,
-        'std_dev_lead_time': 2
-    }
+    scenario = request.form.get('scenario')
+    if not scenario:
+        return "Error: No scenario selected", 400
 
     # Run simulation
-    sim = SupplyChainSimulation(initial_inventory=initial_inventory, demand_data=demand, inventory_policy=policy)
-    results_df = sim.run_simulation(days)
+    results_df = run_simulation(scenario_name=scenario, sim_days=30)
 
-    # Calculate KPIs
-    fill_rate = calculate_fill_rate(results_df)
-    service_level = calculate_service_level(results_df)
-    cost_per_unit = 50
-    total_cogs = results_df['fulfilled_demand'].sum() * cost_per_unit
-    inventory_turnover = calculate_inventory_turnover(results_df, total_cogs)
+    # Calculate high-level KPIs
+    total_cost = results_df['total_cost'].sum()
+    total_stockouts = results_df['stockout_qty'].sum()
+    avg_inventory = results_df['inventory_stock'].mean()
 
     kpis = {
-        'fill_rate': f"{fill_rate:.2%}",
-        'service_level': f"{service_level:.2%}",
-        'inventory_turnover': f"{inventory_turnover:.2f}"
+        'total_cost': f"${total_cost:,.2f}",
+        'total_stockouts': f"{total_stockouts:,}",
+        'avg_inventory': f"{avg_inventory:,.2f}"
     }
 
-    # Prepare data for the chart
+    # Prepare data for the chart (showing inventory for the first product)
+    first_product = results_df['product_id'].unique()[0]
+    product_df = results_df[results_df['product_id'] == first_product]
     chart_data = {
-        'labels': results_df['day'].tolist(),
-        'values': results_df['inventory_level'].tolist()
+        'labels': product_df['date'].dt.strftime('%Y-%m-%d').tolist(),
+        'values': product_df['inventory_stock'].tolist()
     }
 
-    # Save full results to a temporary CSV file for download
-    results_df.to_csv('output/simulation_log.csv', index=False)
+    # Get a list of available scenarios for the dropdown
+    scenarios = [d for d in os.listdir('scenarios') if os.path.isdir(os.path.join('scenarios', d))]
 
-    # Convert dataframe to HTML table for display
-    results_html = results_df.tail(10).to_html(classes='table table-striped table-hover', index=False)
-
-    return render_template('index.html', results=results_html, kpis=kpis, chart_data=chart_data)
-
-@app.route('/download')
-def download_log():
-    return send_file('../output/simulation_log.csv', as_attachment=True)
+    return render_template('index.html', kpis=kpis, chart_data=chart_data, scenarios=scenarios, selected_scenario=scenario)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
+

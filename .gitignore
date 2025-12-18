@@ -81,3 +81,4 @@ env/
 # Output files
 output/
 simulation_log.csv
+kpis.csv
