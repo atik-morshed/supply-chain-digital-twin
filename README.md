@@ -1,4 +1,4 @@
-# End-to-End Supply Chain Digital Twin (FLAGSHIP PROJECT)
+# End-to-End Supply Chain Digital Twin
 
 ## What it is
 
