@@ -1,47 +1,100 @@
-# End-to-End Supply Chain Digital Twin (FLAGSHIP PROJECT)
+# End-to-End Supply Chain Digital Twin
 
-## What it is
+This project is a data-driven simulation of a company’s supply chain, built to model and analyze the impact of demand uncertainty, inventory policies, and supplier variability on operational performance.
 
-A data-driven simulation of a company’s supply chain, from demand and procurement to inventory and delivery. This project uses realistic, modular components to simulate daily operations and log key performance indicators (KPIs).
+## Problem Statement
 
-## Core Features
+In supply chain management, balancing inventory levels to meet customer demand without incurring excessive costs is a critical challenge. Under-stocking leads to lost sales and poor service levels, while over-stocking results in high holding costs and wasted capital. This digital twin was built to simulate these trade-offs, providing measurable insights into how different strategies affect key business outcomes.
 
-- **Data-Driven Simulation**: Uses sample CSV files for demand, suppliers, and inventory.
-- **Modular Engine**: A central `run_simulation.py` script ties all supply chain components together.
-- **Daily KPI Logging**: Logs key metrics like stock levels, stockouts, costs, and lead times to a CSV file for analysis.
-- **Dashboard-Ready**: The output is designed to be easily imported into tools like Power BI or Excel to build interactive dashboards.
+## Architecture
 
-## Tech Stack
+The simulation is built on a modular, data-driven architecture that separates the core logic from the data inputs. This allows for easy scenario testing and analysis.
 
-- Python (pandas, numpy)
-- Power BI / Excel (for visualization)
+```
+/supply-chain-digital-twin
+|-- /data
+|   |-- demand.csv
+|   |-- suppliers.csv
+|   |-- inventory.csv
+|-- /src
+|   |-- demand_forecast.py
+|   |-- procurement.py
+|   |-- inventory_policy.py
+|   |-- warehouse.py
+|   |-- delivery.py
+|-- /outputs
+|   |-- kpis.csv (Generated)
+|   |-- inventory_over_time.png (Generated)
+|-- run_simulation.py  (Main Engine)
+|-- visualize.py       (Plot Generator)
+|-- requirements.txt
+|-- README.md
+```
 
-## How to Use
+## How to Run
 
-This project includes an interactive web UI to run simulations and visualize the results.
+### 1. Installation
 
-### 1. Run the Web Application
+Clone the repository and install the required dependencies:
 
-1.  Install the required dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-2.  Run the Flask application from your terminal:
-    ```bash
-    python app/main.py
-    ```
-3.  Open your web browser and navigate to `http://127.0.0.1:8080`.
+```bash
+git clone https://github.com/atik-morshed/supply-chain-digital-twin.git
+cd supply-chain-digital-twin
+pip install -r requirements.txt
+```
 
-### 2. Run a Simulation
+### 2. Run the Simulation
 
--   From the dropdown menu, select a simulation scenario (e.g., Base Case, High Demand).
--   Click the **Run Simulation** button.
--   The results, including high-level KPIs and an inventory chart, will be displayed on the page.
+Execute the main simulation engine script from your terminal. This will read the data from `/data`, run a 365-day simulation, and generate a detailed KPI log in the `/outputs` directory.
 
-### 3. Customize Scenarios
+```bash
+python run_simulation.py
+```
 
-You can add or modify simulation scenarios by editing the files in the `/scenarios` directory. Each subdirectory represents a different scenario and must contain:
+### 3. Generate Visualizations
 
--   `demand.csv`
--   `suppliers.csv`
--   `inventory.csv`
+After the simulation is complete, run the visualization script to generate plots from the KPI data. The plots will be saved in the `/outputs` directory.
+
+```bash
+python visualize.py
+```
+
+## KPI Explanation
+
+The simulation generates a `kpis.csv` file with the following key metrics for each product on each day:
+
+| Column            | Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| `date`            | The date of the simulation day.                                             |
+| `product_id`      | The unique identifier for the product.                                      |
+| `total_demand`    | The quantity of the product demanded by customers.                          |
+| `fulfilled`       | The quantity of demand that was successfully met from available inventory.  |
+| `stockout`        | The quantity of demand that could not be met (lost sales).                  |
+| `inventory_level` | The quantity of stock on hand at the end of the day.                        |
+| `lead_time`       | The number of days for a new order to arrive (0 if no order was placed).    |
+| `delivery_delay`  | Placeholder for delivery delay simulation (currently 0).                    |
+| `total_cost`      | The sum of holding, stockout, and ordering costs for the day.               |
+
+## Sample Results & Insights
+
+The `visualize.py` script generates the following plots, which provide immediate insights into the simulation's performance.
+
+**Inventory Level Over Time**
+
+This chart shows the fluctuation of stock for each product over the simulation period. It helps identify trends, seasonality, and the effectiveness of the inventory policy.
+
+*(This is where you would embed the `inventory_over_time.png` image)*
+
+**Cost Breakdown Over Time**
+
+This chart visualizes the total operational cost per day, helping to identify cost drivers and the financial impact of stockouts or excess inventory.
+
+*(This is where you would embed the `cost_over_time.png` image)*
+
+## Using with Power BI / Excel
+
+The `outputs/kpis.csv` file is designed to be a direct data source for business intelligence tools. You can import this file into Power BI or Excel to create interactive dashboards and perform deeper analysis on metrics like:
+
+- **Fill Rate**: `SUM(fulfilled) / SUM(total_demand)`
+- **Service Level**: `(Total Days - Days with Stockouts) / Total Days`
+- **Inventory Turnover**: `Total Cost of Goods Sold / Average Inventory Value`

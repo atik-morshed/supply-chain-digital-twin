@@ -1,3 +1,0 @@
-product_id,initial_stock,holding_cost,ordering_cost,stockout_cost
-P1,500,2,50,10
-P2,300,3,40,15

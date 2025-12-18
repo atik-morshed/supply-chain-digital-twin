@@ -82,3 +82,4 @@ env/
 output/
 simulation_log.csv
 kpis.csv
+*.png
